@@ -15,7 +15,10 @@
 */
 package com.example.agentic;
 
+import io.dapr.spring.workflows.config.EnableDaprWorkflows;
+import io.dapr.workflows.client.DaprWorkflowClient;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 // ------------------------------------------------------------
 
 @SpringBootApplication
+@EnableDaprWorkflows
 public class Application {
 
 	public static void main(String[] args) {
@@ -44,10 +48,12 @@ public class Application {
 			Operating margin improved to 34%.
 			""";
 
+	@Autowired
+	private DaprWorkflowClient daprWorkflowClient;
 	@Bean
 	public CommandLineRunner commandLineRunner(ChatClient.Builder chatClientBuilder) {
 		return args -> {
-			new ChainWorkflow(chatClientBuilder.build()).chain(report);
+			daprWorkflowClient.scheduleNewWorkflow(ChainWorkflow.class, report);
 		};
 	}
 }

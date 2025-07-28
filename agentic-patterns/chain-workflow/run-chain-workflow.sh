@@ -28,7 +28,7 @@ echo "Running mvn clean package..."
 section "Running Chain Workflow"
 echo "Starting the application..."
 OUTPUT_FILE=$(mktemp)
-./mvnw spring-boot:run | tee "$OUTPUT_FILE"
+./mvnw spring-boot:test-run | tee "$OUTPUT_FILE"
 
 # Verify the output
 section "Verifying Output"

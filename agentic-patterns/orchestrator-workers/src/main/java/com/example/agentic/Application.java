@@ -16,7 +16,10 @@
 */
 package com.example.agentic;
 
+import io.dapr.spring.workflows.config.EnableDaprWorkflows;
+import io.dapr.workflows.client.DaprWorkflowClient;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,19 +30,22 @@ import org.springframework.context.annotation.Bean;
 // ------------------------------------------------------------
 
 @SpringBootApplication
+@EnableDaprWorkflows
 public class Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner commandLineRunner(ChatClient.Builder chatClientBuilder) {
-		var chatClient = chatClientBuilder.build();
-		return args -> {
+	@Autowired
+	private DaprWorkflowClient daprWorkflowClient;
 
-			new OrchestratorWorkers(chatClient)
-					.process("Write a product description for a new eco-friendly water bottle");
+	public static final String ORIGINAL_TASK = "Write a product description for a new eco-friendly water bottle";
+	@Bean
+	public CommandLineRunner commandLineRunner() {
+		return args -> {
+			daprWorkflowClient.scheduleNewWorkflow(OrchestratorWorkersWorkflow.class,
+							ORIGINAL_TASK);
 
 		};
 	}
