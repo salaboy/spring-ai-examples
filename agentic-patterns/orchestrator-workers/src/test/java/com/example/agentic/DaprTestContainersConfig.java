@@ -13,6 +13,7 @@ limitations under the License.
 
 package com.example.agentic;
 
+import io.arconia.dev.services.lgtm.LgtmDevServicesProperties;
 import io.dapr.testcontainers.*;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -23,43 +24,51 @@ import org.springframework.core.env.Environment;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.grafana.LgtmStackContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
 @TestConfiguration()
 public class DaprTestContainersConfig {
 
-  @Bean
-  GenericContainer zipkinContainer(Network network) {
-    GenericContainer zipkinContainer = new GenericContainer(DockerImageName.parse("openzipkin/zipkin:latest"))
-            .withNetwork(network)
-            .withExposedPorts(9411)
-            .withNetworkAliases("zipkin");
-    return zipkinContainer;
-  }
 
+//  @Bean
+//  @ServiceConnection
+//  LgtmStackContainer lgtmContainer(LgtmDevServicesProperties properties, Network daprNetwork) {
+//    return (LgtmStackContainer)((LgtmStackContainer)((LgtmStackContainer)(new LgtmStackContainer(DockerImageName.parse(properties.getImageName())
+//            .asCompatibleSubstituteFor("grafana/otel-lgtm")))
+//            .withEnv(properties.getEnvironment()))
+//            .withNetwork(daprNetwork)
+//            .withNetworkAliases("lgtm")
+//            .withStartupTimeout(Duration.ofMinutes(2L)));
+//  }
 
   @Bean
   @ServiceConnection
-  public DaprContainer daprContainer(Network daprNetwork, GenericContainer zipkinContainer) {
+  public DaprContainer daprContainer(Network daprNetwork, LgtmStackContainer lgtmStackContainer) {
 
-    DockerImageName myDaprImage = DockerImageName.parse("daprio/daprd:1.15.4");
+    //new ZipkinTracingConfigurationSettings("http://zipkin:9411/api/v2/spans"))
+    DockerImageName myDaprImage = DockerImageName.parse("daprio/daprd:1.15.7").asCompatibleSubstituteFor("daprio/daprd:1.15.4");
+
     return new DaprContainer(myDaprImage)
-            .withAppName("agentic")
+            .withAppName("orchestrator-workers-dapr")
             .withNetwork(daprNetwork)
             .withComponent(new Component("kvstore", "state.in-memory", "v1",
                     Collections.singletonMap("actorStateStore", "true")))
 
-            .withConfiguration(new Configuration("daprConfig",
-                    new TracingConfigurationSettings("1", true, null,
-                            new ZipkinTracingConfigurationSettings("http://zipkin:9411/api/v2/spans")), null))
-
-  //Uncomment if you want to troubleshoot Dapr related problems
+            //Uncomment if you want to troubleshoot Dapr related problems
 //            .withDaprLogLevel(DaprLogLevel.DEBUG)
 //            .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
-            .dependsOn(zipkinContainer);
+            .withConfiguration(new Configuration("daprConfig",
+                    new TracingConfigurationSettings("1", true,
+                            new OtelTracingConfigurationSettings("lgtm:4317", false, "grpc"),
+                            null), null));
+
+
+
 
   }
 

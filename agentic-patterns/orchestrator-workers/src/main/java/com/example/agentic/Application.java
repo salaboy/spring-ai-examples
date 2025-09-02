@@ -16,14 +16,21 @@
 */
 package com.example.agentic;
 
+import io.dapr.client.DaprClient;
 import io.dapr.spring.workflows.config.EnableDaprWorkflows;
 import io.dapr.workflows.client.DaprWorkflowClient;
-import org.springframework.ai.chat.client.ChatClient;
+import io.dapr.workflows.client.NewWorkflowOptions;
+import io.opentelemetry.context.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RestController;
+
+
 
 // ------------------------------------------------------------
 // ORCHESTRATOR WORKERS
@@ -31,6 +38,7 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @EnableDaprWorkflows
+@RestController
 public class Application {
 
 	public static void main(String[] args) {
@@ -41,6 +49,7 @@ public class Application {
 	private DaprWorkflowClient daprWorkflowClient;
 
 	public static final String ORIGINAL_TASK = "Write a product description for a new eco-friendly water bottle";
+
 	@Bean
 	public CommandLineRunner commandLineRunner() {
 		return args -> {

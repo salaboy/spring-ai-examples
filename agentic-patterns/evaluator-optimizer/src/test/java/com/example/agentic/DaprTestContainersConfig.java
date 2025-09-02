@@ -13,8 +13,9 @@ limitations under the License.
 
 package com.example.agentic;
 
-import io.dapr.testcontainers.*;
-
+import io.dapr.testcontainers.DaprContainer;
+import io.dapr.testcontainers.TracingConfigurationSettings;
+import io.dapr.testcontainers.ZipkinTracingConfigurationSettings;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -23,10 +24,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.GenericContainer;
-
 import org.testcontainers.containers.Network;
 import org.testcontainers.utility.DockerImageName;
-
+import io.dapr.testcontainers.*;
 import java.util.Collections;
 import java.util.List;
 

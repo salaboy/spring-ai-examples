@@ -1,4 +1,4 @@
-package com.example.agentic;
+package com.example.agentic.config;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Configuration;
 public class ChatClientConfiguration {
   @Bean
   public ChatClient chatClient(ChatClient.Builder chatClientBuilder){
-    return chatClientBuilder.build();
+    return chatClientBuilder.clone().build();
   }
 }

@@ -70,8 +70,6 @@ public class OrchestratorWorkersWorkflow implements Workflow {
   @Override
   public WorkflowStub create() {
 
-
-
     return ctx -> {
       ctx.getLogger().info("Starting Workflow: {}", ctx.getName());
 
@@ -97,4 +95,6 @@ public class OrchestratorWorkersWorkflow implements Workflow {
       ctx.complete(new FinalResponse(orchestratorResponse.analysis(), workerResponses));
     };
   }
+
+
 }

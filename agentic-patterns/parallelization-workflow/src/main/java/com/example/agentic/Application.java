@@ -15,14 +15,24 @@
 */
 package com.example.agentic;
 
+import java.time.Duration;
 import java.util.List;
 
+import io.dapr.spring.workflows.config.EnableDaprWorkflows;
+import io.dapr.workflows.client.DaprWorkflowClient;
+import io.dapr.workflows.client.NewWorkflowOptions;
+import io.dapr.workflows.client.WorkflowInstanceStatus;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RestController;
 
+@EnableDaprWorkflows
 @SpringBootApplication
 public class Application {
 
@@ -30,52 +40,56 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 	}
 
-	@Bean
-	public CommandLineRunner commandLineRunner(ChatClient.Builder chatClientBuilder) {
-
-		return args -> {
-			// ------------------------------------------------------------
-			// PARALLEL WORKFLOW
-			// ------------------------------------------------------------
-
-			List<String> parallelResponse = new ParallelizationlWorkflow(chatClientBuilder.build())
-					.parallel("""
+	private final String prompt = """
 							Analyze how market changes will impact this stakeholder group.
 							Provide specific impacts and recommended actions.
 							Format with clear sections and priorities.
-							""",
-							List.of(
-									"""
-											Customers:
-											- Price sensitive
-											- Want better tech
-											- Environmental concerns
-											""",
+							""";
+	private final List<String> inputs = List.of(
+					"""
+              Customers:
+              - Price sensitive
+              - Want better tech
+              - Environmental concerns
+              """,
 
-									"""
-											Employees:
-											- Job security worries
-											- Need new skills
-											- Want clear direction
-											""",
+					"""
+              Employees:
+              - Job security worries
+              - Need new skills
+              - Want clear direction
+              """,
 
-									"""
-											Investors:
-											- Expect growth
-											- Want cost control
-											- Risk concerns
-											""",
+					"""
+              Investors:
+              - Expect growth
+              - Want cost control
+              - Risk concerns
+              """,
 
-									"""
-											Suppliers:
-											- Capacity constraints
-											- Price pressures
-											- Tech transitions
-											"""),
-							4);
+					"""
+              Suppliers:
+              - Capacity constraints
+              - Price pressures
+              - Tech transitions
+              """);
 
+
+	@Autowired
+	private DaprWorkflowClient daprWorkflowClient;
+
+	@Bean
+	public CommandLineRunner commandLineRunner() {
+		return args -> {
+			String workflowInstanceId = daprWorkflowClient.scheduleNewWorkflow(ParallelWorkflow.class,
+							new ParallelWorkflow.WorkflowInput(prompt, inputs));
+			WorkflowInstanceStatus workflowInstanceStatus = daprWorkflowClient
+							.waitForInstanceCompletion(workflowInstanceId, Duration.ofMinutes(10), true);
+
+			List<String> parallelResponse = workflowInstanceStatus.readOutputAs(List.class);
 			System.out.println(parallelResponse);
 
 		};
 	}
+
 }

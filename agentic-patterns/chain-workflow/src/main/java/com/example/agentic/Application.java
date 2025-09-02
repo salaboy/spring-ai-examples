@@ -50,8 +50,9 @@ public class Application {
 
 	@Autowired
 	private DaprWorkflowClient daprWorkflowClient;
+
 	@Bean
-	public CommandLineRunner commandLineRunner(ChatClient.Builder chatClientBuilder) {
+	public CommandLineRunner commandLineRunner() {
 		return args -> {
 			daprWorkflowClient.scheduleNewWorkflow(ChainWorkflow.class, report);
 		};

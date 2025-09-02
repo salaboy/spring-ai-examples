@@ -58,7 +58,7 @@ public class DaprTestContainersConfig {
                     new TracingConfigurationSettings("1", true, null,
                             new ZipkinTracingConfigurationSettings("http://zipkin:9411/api/v2/spans")), null))
 
-  //Uncomment if you want to troubleshoot Dapr related problems
+            //Uncomment if you want to troubleshoot Dapr related problems
 //            .withDaprLogLevel(DaprLogLevel.DEBUG)
 //            .withLogConsumer(outputFrame -> System.out.println(outputFrame.getUtf8String()))
             .dependsOn(zipkinContainer);

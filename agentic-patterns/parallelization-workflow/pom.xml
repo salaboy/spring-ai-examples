@@ -20,6 +20,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<spring-ai.version>1.1.0-SNAPSHOT</spring-ai.version>
+		<dapr.version>0.15.1</dapr.version>
 	</properties>
 	
 	<dependencies>
@@ -29,15 +30,15 @@
 		</dependency>
 
 
-		<!-- <dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-starter-model-openai</artifactId>
-		</dependency> -->
-
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-starter-model-anthropic</artifactId>
+			<artifactId>spring-ai-starter-model-openai</artifactId>
 		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.ai</groupId>-->
+<!--			<artifactId>spring-ai-starter-model-anthropic</artifactId>-->
+<!--		</dependency>-->
 
 		<!-- <dependency>
 			<groupId>org.springframework.ai</groupId>
@@ -45,8 +46,19 @@
 		</dependency> -->
 
 		<dependency>
+			<groupId>io.dapr.spring</groupId>
+			<artifactId>dapr-spring-boot-starter</artifactId>
+			<version>${dapr.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.dapr.spring</groupId>
+			<artifactId>dapr-spring-boot-starter-test</artifactId>
+			<version>${dapr.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
